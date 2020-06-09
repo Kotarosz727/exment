@@ -16,26 +16,26 @@ class File extends CustomItem
      */
     public function file()
     {
-        return ExmentFile::getFile($this->fileValue());
+        return ExmentFile::getFile($this->fileValue($this->value));
     }
 
     /**
      * get text
      */
-    public function text()
+    public function getText($value)
     {
         // get image url
-        return ExmentFile::getUrl($this->fileValue(), boolval(array_get($this->options, 'asApi')));
+        return ExmentFile::getUrl($this->fileValue($value), boolval(array_get($this->options, 'asApi')));
     }
 
     /**
      * get html. show link to file
      */
-    public function html()
+    public function getHtml($value)
     {
         // get image url
-        $url = ExmentFile::getUrl($this->fileValue());
-        $file = ExmentFile::getData($this->fileValue());
+        $url = ExmentFile::getUrl($this->fileValue($value));
+        $file = ExmentFile::getData($this->fileValue($value));
         if (!isset($url)) {
             return $url;
         }
@@ -152,17 +152,17 @@ class File extends CustomItem
      *
      * @return void
      */
-    protected function fileValue()
+    protected function fileValue($value)
     {
-        if (is_null($this->value)) {
+        if (is_null($value)) {
             return null;
         }
 
-        if (is_array($this->value)) {
-            return count($this->value) == 0 ? null : $this->value[0];
+        if (is_array($value)) {
+            return count($value) == 0 ? null : $value[0];
         }
 
-        return $this->value;
+        return $value;
     }
 
     protected function setValidates(&$validates, $form_column_options)

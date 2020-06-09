@@ -6,7 +6,7 @@ use Exceedone\Exment\Enums\CurrencySymbol;
 
 class Currency extends Decimal
 {
-    public function text()
+    public function getText($value)
     {
         list($symbol, $value) = $this->getSymbolAndValue();
         if (!isset($symbol)) {
@@ -16,7 +16,7 @@ class Currency extends Decimal
         return getCurrencySymbolLabel($symbol, false, $value);
     }
 
-    public function html()
+    public function getHtml($value)
     {
         list($symbol, $value) = $this->getSymbolAndValue();
         if (!isset($symbol)) {

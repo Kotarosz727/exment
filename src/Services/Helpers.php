@@ -768,6 +768,33 @@ if (!function_exists('toArray')) {
     }
 }
 
+if (!function_exists('toCollection')) {
+    /**
+     * Convert Collection
+     * string : casting collection
+     * array : collect()
+     *
+     * @param mixed $value
+     * @return Collection
+     */
+    function toCollection($value) : \Illuminate\Support\Collection
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return collect($value);
+        }
+
+        if ($value instanceof \Illuminate\Support\Collection) {
+            return $value;
+        }
+
+        return collect([$value]);
+    }
+}
+
 if (!function_exists('is_json')) {
     function is_json($string)
     {

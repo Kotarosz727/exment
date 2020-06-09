@@ -80,18 +80,18 @@ class ParentItem implements ItemInterface
     /**
      * get text(for display)
      */
-    public function text()
+    public function getText($value)
     {
-        return isset($this->value) ? $this->value->getLabel() : null;
+        return isset($value) ? $value->getLabel() : null;
     }
 
     /**
      * get html(for display)
      * *this function calls from non-escaping value method. So please escape if not necessary unescape.
      */
-    public function html()
+    public function getHtml($value)
     {
-        return isset($this->value) ? $this->value->getUrl(true) : null;
+        return isset($value) ? $value->getUrl(true) : null;
     }
 
     /**

@@ -26,10 +26,10 @@ class Decimal extends CustomItem
     /**
      * get html(for display)
      */
-    public function html()
+    public function getHtml($value)
     {
         // default escapes text
-        $text = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($this->text()) : $this->text();
+        $text = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($this->getText($value)) : $this->getText($value);
         // display number as percent
         if (array_has($this->custom_column, 'options.percent_format')) {
             if (boolval(array_get($this->custom_column, 'options.percent_format')) && isset($text)) {
@@ -39,7 +39,7 @@ class Decimal extends CustomItem
         return esc_html($text);
     }
     
-    public function text()
+    public function getText($value)
     {
         if (is_null($this->value())) {
             return null;

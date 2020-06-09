@@ -7,9 +7,9 @@ use Exceedone\Exment\Form\Field;
 
 class Editor extends CustomItem
 {
-    public function html()
+    public function getHtml($value)
     {
-        $text = $this->text();
+        $text = $this->getText($value);
         if (is_null($text)) {
             return null;
         }

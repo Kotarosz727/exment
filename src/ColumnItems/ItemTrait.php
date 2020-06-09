@@ -2,6 +2,27 @@
 
 namespace Exceedone\Exment\ColumnItems;
 
+use Encore\Admin\Form\Field;
+use Encore\Admin\Grid\Filter;
+use Exceedone\Exment\Form\Field as ExmentField;
+use Exceedone\Exment\Grid\Filter as ExmentFilter;
+use Encore\Admin\Grid\Filter\Where;
+use Exceedone\Exment\Model\System;
+use Exceedone\Exment\Model\CustomTable;
+use Exceedone\Exment\Model\CustomColumn;
+use Exceedone\Exment\Model\CustomColumnMulti;
+use Exceedone\Exment\Model\CustomRelation;
+use Exceedone\Exment\Model\Traits\ColumnOptionQueryTrait;
+use Exceedone\Exment\Enums\ColumnType;
+use Exceedone\Exment\Enums\RelationType;
+use Exceedone\Exment\Enums\SystemColumn;
+use Exceedone\Exment\Enums\ValueType;
+use Exceedone\Exment\Enums\FilterType;
+use Exceedone\Exment\Enums\FilterSearchType;
+use Exceedone\Exment\Enums\SystemTableName;
+use Exceedone\Exment\ColumnItems\CustomColumns\AutoNumber;
+use Exceedone\Exment\Validator;
+
 trait ItemTrait
 {
     /**
@@ -20,7 +41,7 @@ trait ItemTrait
      */
     public function value()
     {
-        return $this->value;
+        return $this->getValue($value);
     }
 
     /**
@@ -30,6 +51,34 @@ trait ItemTrait
     public function pureValue()
     {
         return $this->value;
+    }
+
+    /**
+     * get text
+     */
+    public function text()
+    {
+        return arrayToString(toCollection($this->value)->map(function($value){
+            return $this->getText($value);
+        }));
+    }
+    
+    /**
+     * get html(for display)
+     */
+    public function html()
+    {
+        return arrayToString(toCollection($this->value)->map(function($value){
+            return $this->getHtml($value);
+        }));
+    }
+    
+    /**
+     * get value
+     */
+    public function getValue($value)
+    {
+        return $value;
     }
 
     /**
@@ -213,5 +262,40 @@ trait ItemTrait
         }
 
         return ['=', $pureValue];
+    }
+
+    /**
+     * getTargetValue. Use "view_pivot_column" option.
+     *
+     * @param mixed $custom_value
+     * @return mixed single or collection $custom_value
+     */
+    protected function getTargetValueUsePivotColumn($custom_value){
+        // if options has "view_pivot_column", get select_table's custom_value first
+        if (isset($custom_value) && array_key_value_exists('view_pivot_column', $this->options)) {
+            $view_pivot_column = $this->options['view_pivot_column'];
+
+            // PARENT_ID: 1:n or n:n relation
+            if ($view_pivot_column == SystemColumn::PARENT_ID) {
+                $relation = CustomRelation::getRelationByParentChild($this->custom_table, array_get($this->options, 'view_pivot_table'));
+                
+                // if n:n relation
+                if(isset($relation) && $relation->relation_type == RelationType::MANY_TO_MANY){
+                    // Getting n:n parent values.
+                    return $custom_value->{$relation->getRelationName()};
+                }
+
+                // other
+                else{
+                    $custom_value = $this->custom_table->getValueModel($custom_value->parent_id);
+                }
+            } else {
+                $pivot_custom_column = CustomColumn::getEloquent($this->options['view_pivot_column']);
+                $pivot_id =  array_get($custom_value, 'value.'.$pivot_custom_column->column_name);
+                $custom_value = $this->custom_table->getValueModel($pivot_id);
+            }
+
+            return $custom_value;
+        }
     }
 }

@@ -15,18 +15,14 @@ class Boolean extends CustomItem
      */
     protected $required = false;
     
-    public function text()
+    public function getText($value)
     {
-        $value = collect(toArray($this->value()))->map(function($v){
-            if (array_get($this->custom_column, 'options.true_value') == $v) {
-                return array_get($this->custom_column, 'options.true_label');
-            } elseif (array_get($this->custom_column, 'options.false_value') == $v) {
-                return array_get($this->custom_column, 'options.false_label');
-            }
-            return null;                
-        });
-
-        return arrayToString($value);
+        if (array_get($this->custom_column, 'options.true_value') == $value) {
+            return array_get($this->custom_column, 'options.true_label');
+        } elseif (array_get($this->custom_column, 'options.false_value') == $value) {
+            return array_get($this->custom_column, 'options.false_label');
+        }
+        return null;                
     }
 
     public function saving()

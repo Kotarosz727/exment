@@ -147,7 +147,7 @@ class SystemItem implements ItemInterface
     /**
      * get text(for display)
      */
-    public function text()
+    public function getText($value)
     {
         return $this->getTargetValue(false);
     }
@@ -156,7 +156,7 @@ class SystemItem implements ItemInterface
      * get html(for display)
      * *this function calls from non-escaping value method. So please escape if not necessary unescape.
      */
-    public function html()
+    public function getHtml($value)
     {
         return $this->getTargetValue(true);
     }
@@ -193,13 +193,14 @@ class SystemItem implements ItemInterface
     {
         // if options has "view_pivot_column", get select_table's custom_value first
         if (isset($custom_value) && array_key_value_exists('view_pivot_column', $this->options)) {
-            $view_pivot_column = $this->options['view_pivot_column'];
-            if ($view_pivot_column == SystemColumn::PARENT_ID) {
-                $custom_value = $this->custom_table->getValueModel($custom_value->parent_id);
-            } else {
-                $pivot_custom_column = CustomColumn::getEloquent($this->options['view_pivot_column']);
-                $pivot_id =  array_get($custom_value, 'value.'.$pivot_custom_column->column_name);
-                $custom_value = $this->custom_table->getValueModel($pivot_id);
+            $custom_values = collect($this->getTargetValueUsePivotColumn($custom_value))->filter();
+
+            if(count($custom_values) == 0){
+                $custom_value = null;
+            }elseif(count($custom_values) == 1){
+                $custom_value = $custom_values->first();
+            }else{
+                $custom_value = $custom_values;
             }
         }
 
@@ -228,11 +229,15 @@ class SystemItem implements ItemInterface
         if ($html) {
             $option = $this->getSystemColumnOption();
             if (!is_null($keyname = array_get($option, 'tagname'))) {
-                return array_get($this->custom_value, $keyname);
+                return arrayToString(toCollection($this->custom_value)->map(function($custom_value) use($keyname){
+                    return array_get($custom_value, $keyname);
+                }));
             }
         }
 
-        $val = array_get($this->custom_value, $this->column_name);
+        $val = arrayToString(toCollection($this->custom_value)->map(function($custom_value){
+            return array_get($custom_value, $this->column_name);
+        }));
         return $html ? esc_html($val) : $val;
     }
     

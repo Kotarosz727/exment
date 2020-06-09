@@ -7,9 +7,9 @@ use Encore\Admin\Form\Field;
 
 class Textarea extends CustomItem
 {
-    public function html()
+    public function getHtml($value)
     {
-        $text = $this->text();
+        $text = $this->getText($value);
         $text = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($text) : $text;
         
         return  replaceBreak($text);

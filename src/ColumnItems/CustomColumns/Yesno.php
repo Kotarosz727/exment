@@ -16,14 +16,9 @@ class Yesno extends CustomItem
      */
     protected $required = false;
 
-    public function text()
+    public function getText($value)
     {
-        $value = collect(toArray($this->value()))->map(function($v){
-            return boolval($v) ? 'YES' : 'NO';
-        });
-
-        return arrayToString($value);
-        
+        return boolval($value) ? 'YES' : 'NO';
     }
 
     public function saving()

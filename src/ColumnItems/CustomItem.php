@@ -109,7 +109,7 @@ abstract class CustomItem implements ItemInterface
     /**
      * get Text(for display)
      */
-    public function text()
+    public function getText()
     {
         return arrayToString($this->value);
     }
@@ -117,7 +117,7 @@ abstract class CustomItem implements ItemInterface
     /**
      * get html(for display)
      */
-    public function html()
+    public function getHtml()
     {
         // default escapes text
         $text = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($this->text()) : $this->text();
@@ -191,31 +191,11 @@ abstract class CustomItem implements ItemInterface
 
         // if options has "view_pivot_column", get select_table's custom_value first
         if (isset($custom_value) && array_key_value_exists('view_pivot_column', $this->options)) {
-            $view_pivot_column = $this->options['view_pivot_column'];
+            $custom_values = $this->getTargetValueUsePivotColumn($custom_value);
 
-            // PARENT_ID: 1:n or n:n relation
-            if ($view_pivot_column == SystemColumn::PARENT_ID) {
-                $relation = CustomRelation::getRelationByParentChild($this->custom_table, array_get($this->options, 'view_pivot_table'));
-                
-                // if n:n relation
-                if(isset($relation) && $relation->relation_type == RelationType::MANY_TO_MANY){
-                    // Getting n:n parent values.
-                    $parentValues = $custom_value->{$relation->getRelationName()};
-                    return $parentValues->map(function($parentValue){
-                        return array_get($parentValue, 'value.'.$this->custom_column->column_name);
-                    });
-                }
-
-                // other
-                else{
-                    $custom_value = $this->custom_table->getValueModel($custom_value->parent_id);
-                }
-                
-            } else {
-                $pivot_custom_column = CustomColumn::getEloquent($this->options['view_pivot_column']);
-                $pivot_id =  array_get($custom_value, 'value.'.$pivot_custom_column->column_name);
-                $custom_value = $this->custom_table->getValueModel($pivot_id);
-            }
+            return collect($custom_values)->map(function($custom_value){
+                return array_get($custom_value, 'value.'.$this->custom_column->column_name);
+            });
         }
 
         return array_get($custom_value, 'value.'.$this->custom_column->column_name);

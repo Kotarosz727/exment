@@ -64,7 +64,7 @@ abstract class FormOtherItem implements ItemInterface
     /**
      * get Text(for display)
      */
-    public function text()
+    public function getText($value)
     {
         return array_get($this->form_column, 'options.text');
     }
@@ -73,10 +73,10 @@ abstract class FormOtherItem implements ItemInterface
      * get html(for display)
      * *Please escape
      */
-    public function html()
+    public function getHtml($value)
     {
         // default escapes text
-        return esc_script_tag($this->text());
+        return esc_script_tag($this->getText($value));
     }
 
     /**

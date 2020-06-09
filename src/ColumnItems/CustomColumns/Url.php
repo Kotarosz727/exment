@@ -11,15 +11,13 @@ class Url extends CustomItem
      * get html(for display)
      * *this function calls from non-escaping value method. So please escape if not necessary unescape.
      */
-    public function html()
+    public function getHtml($value)
     {
-        return arrayToString(collect(toArray($this->value()))->map(function($value){
-            $url = $value;
+        $url = $value;
 
-            $value = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($value) : $value;
-        
-            return "<a href='{$url}' target='_blank'>$value</a>";
-        }));
+        $value = boolval(array_get($this->options, 'grid_column')) ? get_omitted_string($value) : $value;
+     
+        return "<a href='{$url}' target='_blank'>$value</a>";
     }
     
     protected function getAdminFieldClass()
