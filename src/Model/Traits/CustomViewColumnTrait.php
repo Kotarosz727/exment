@@ -22,6 +22,11 @@ trait CustomViewColumnTrait
         return $this->belongsTo(CustomView::class, 'custom_view_id');
     }
     
+    public function getCustomViewCacheAttribute()
+    {
+        return CustomView::getEloquent($this->custom_view_id);
+    }
+    
     public function getCustomColumnAttribute()
     {
         if ($this->view_column_type == ConditionType::COLUMN) {
@@ -95,8 +100,25 @@ trait CustomViewColumnTrait
             $column_type = SystemColumn::getOption(['id' => $column_type_target])['name'] ?? null;
         }
 
-        $optionKeyParams['view_pivot_column'] = $this->view_pivot_column_id ?? null;
-        $optionKeyParams['view_pivot_table'] = $this->view_pivot_table_id ?? null;
+        //// view_pivot_table
+        if(isset($this->view_pivot_table_id)){
+            $optionKeyParams['view_pivot_table'] = $this->view_pivot_table_id;
+        }
+        // not match custom view's custom table id and $column_table_id, set custom view's id
+        elseif(strcmp($this->custom_view_cache->custom_table_id, $column_table_id) !== 0){
+            $optionKeyParams['view_pivot_table'] = $this->custom_view_cache->custom_table_id;
+        }
+        else{
+            $optionKeyParams['view_pivot_table'] =  null;
+        }
+        
+        //// view_pivot_column
+        if(isset($this->view_pivot_column_id)){
+            $optionKeyParams['view_pivot_column'] = $this->view_pivot_column_id;
+        }
+        elseif(isset($optionKeyParams['view_pivot_table'])){
+            $optionKeyParams['view_pivot_column'] = SystemColumn::PARENT_ID;
+        }
 
         return static::getOptionKey($column_type, true, $column_table_id, $optionKeyParams);
     }

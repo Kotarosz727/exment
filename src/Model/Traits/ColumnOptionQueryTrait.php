@@ -42,8 +42,6 @@ trait ColumnOptionQueryTrait
             } else {
                 $query['view_pivot_column_id'] = CustomColumn::getEloquent($view_pivot_column)->id ?? null;
             }
-
-            $query['view_pivot_table_id'] = CustomTable::getEloquent($view_pivot_table)->id ?? null;
         }
 
         if (isset($codition_type)) {
@@ -52,7 +50,9 @@ trait ColumnOptionQueryTrait
             } else {
                 $query['view_pivot_column_id'] = CustomColumn::getEloquent($view_pivot_column)->id ?? null;
             }
+        }
 
+        if(isset($view_pivot_table)){
             $query['view_pivot_table_id'] = CustomTable::getEloquent($view_pivot_table)->id ?? null;
         }
 
