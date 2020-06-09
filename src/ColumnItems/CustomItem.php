@@ -11,9 +11,12 @@ use Exceedone\Exment\Model\System;
 use Exceedone\Exment\Model\CustomTable;
 use Exceedone\Exment\Model\CustomColumn;
 use Exceedone\Exment\Model\CustomColumnMulti;
+use Exceedone\Exment\Model\CustomRelation;
 use Exceedone\Exment\Model\Traits\ColumnOptionQueryTrait;
 use Exceedone\Exment\Enums\ColumnType;
+use Exceedone\Exment\Enums\RelationType;
 use Exceedone\Exment\Enums\SystemColumn;
+use Exceedone\Exment\Enums\ValueType;
 use Exceedone\Exment\Enums\FilterType;
 use Exceedone\Exment\Enums\FilterSearchType;
 use Exceedone\Exment\Enums\SystemTableName;
@@ -108,7 +111,7 @@ abstract class CustomItem implements ItemInterface
      */
     public function text()
     {
-        return $this->value;
+        return arrayToString($this->value);
     }
 
     /**
@@ -189,8 +192,25 @@ abstract class CustomItem implements ItemInterface
         // if options has "view_pivot_column", get select_table's custom_value first
         if (isset($custom_value) && array_key_value_exists('view_pivot_column', $this->options)) {
             $view_pivot_column = $this->options['view_pivot_column'];
+
+            // PARENT_ID: 1:n or n:n relation
             if ($view_pivot_column == SystemColumn::PARENT_ID) {
-                $custom_value = $this->custom_table->getValueModel($custom_value->parent_id);
+                $relation = CustomRelation::getRelationByParentChild($this->custom_table, array_get($this->options, 'view_pivot_table'));
+                
+                // if n:n relation
+                if(isset($relation) && $relation->relation_type == RelationType::MANY_TO_MANY){
+                    // Getting n:n parent values.
+                    $parentValues = $custom_value->{$relation->getRelationName()};
+                    return $parentValues->map(function($parentValue){
+                        return array_get($parentValue, 'value.'.$this->custom_column->column_name);
+                    });
+                }
+
+                // other
+                else{
+                    $custom_value = $this->custom_table->getValueModel($custom_value->parent_id);
+                }
+                
             } else {
                 $pivot_custom_column = CustomColumn::getEloquent($this->options['view_pivot_column']);
                 $pivot_id =  array_get($custom_value, 'value.'.$pivot_custom_column->column_name);

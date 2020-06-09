@@ -23,7 +23,7 @@ class Integer extends CustomItem
             && !boolval(array_get($this->options, 'disable_number_format'))) {
             return number_format($this->value());
         }
-        return $this->value();
+        return arrayToString($this->value());
     }
 
     public function saving()

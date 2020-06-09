@@ -96,7 +96,7 @@ class SelectTable extends CustomItem
         if ($text === false) {
             return count($result) > 0 && !$isArray ? $result[0] : $result;
         } else {
-            return implode(exmtrans('common.separate_word'), $result);
+            return arrayToString($result);
         }
     }
 

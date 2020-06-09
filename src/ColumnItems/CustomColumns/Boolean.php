@@ -17,12 +17,16 @@ class Boolean extends CustomItem
     
     public function text()
     {
-        if (array_get($this->custom_column, 'options.true_value') == $this->value()) {
-            return array_get($this->custom_column, 'options.true_label');
-        } elseif (array_get($this->custom_column, 'options.false_value') == $this->value()) {
-            return array_get($this->custom_column, 'options.false_label');
-        }
-        return null;
+        $value = collect(toArray($this->value()))->map(function($v){
+            if (array_get($this->custom_column, 'options.true_value') == $v) {
+                return array_get($this->custom_column, 'options.true_label');
+            } elseif (array_get($this->custom_column, 'options.false_value') == $v) {
+                return array_get($this->custom_column, 'options.false_label');
+            }
+            return null;                
+        });
+
+        return arrayToString($value);
     }
 
     public function saving()

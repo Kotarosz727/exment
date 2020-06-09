@@ -715,6 +715,32 @@ if (!function_exists('stringToArray')) {
     }
 }
 
+
+if (!function_exists('arrayToString')) {
+    /**
+     * array to string(as comma or "、")
+     *
+     * @param mixed $value
+     * @return ?string if $value is string, return $value directly. else, join.
+     */
+    function arrayToString($value)
+    {
+        if (is_nullorempty($value)) {
+            return null;
+        }
+        
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \Illuminate\Support\Collection) {
+            $value = $value->toArray();
+        }
+        
+        return implode(exmtrans('common.separate_word'), array_filter($value));
+    }
+}
+
 if (!function_exists('toArray')) {
     /**
      * Convert array. Such as casting array

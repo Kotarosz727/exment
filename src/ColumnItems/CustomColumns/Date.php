@@ -76,6 +76,12 @@ class Date extends CustomItem
             return (new \Carbon\Carbon(array_get($this->value(), 'date')))->format($format) ?? null;
         }
 
+        elseif(is_list($this->value())){
+            return arrayToString($this->value()->map(function($v) use($format){
+                return (new \Carbon\Carbon($v))->format($format) ?? null;
+            }));
+        }
+
         return (new \Carbon\Carbon($this->value()))->format($format) ?? null;
     }
 
